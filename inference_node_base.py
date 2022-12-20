@@ -10,11 +10,18 @@ from sensor_msgs.msg import Image
 # PyTorch related
 import torch
 from torchvision import transforms
+from typing import Union
 # from util.util import import_model
 
 
 class InferenceNodeBase(object):
-    def __init__(self, model_name: str, version: str, import_model_func):
+    def __init__(
+        self,
+        model_name: str = "",
+        version: str = "",
+        import_model_func=None,
+        size: Union[int, tuple] = 224,
+    ):
         self.model_name = model_name
         self.version = version
 
@@ -29,7 +36,7 @@ class InferenceNodeBase(object):
 
                 self.transforms = transforms.Compose(
                     [
-                        transforms.Resize(224),
+                        transforms.Resize(size),
                         transforms.ToTensor(),
                         transforms.Normalize(
                             [0.485, 0.456, 0.406],
@@ -43,6 +50,14 @@ class InferenceNodeBase(object):
             self.model.eval()
         else:
             self.model = None
+            self.transforms = transforms.Compose(
+                [
+                    transforms.Resize(size),
+                    transforms.ToTensor(),
+                    transforms.Normalize(
+                        [0.485, 0.456, 0.406],
+                        [0.229, 0.224, 0.225]),
+                ])
 
         self.image_sub = rospy.Subscriber(
             '~image', Image, self.image_callback, queue_size=1)
