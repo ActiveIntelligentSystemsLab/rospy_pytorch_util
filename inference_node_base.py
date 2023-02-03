@@ -28,6 +28,8 @@ class InferenceNodeBase(object):
         # Import model
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+        self.size = size
+
         rospy.loginfo(self.device)
         if model_name:
             try:
@@ -36,7 +38,7 @@ class InferenceNodeBase(object):
 
                 self.transforms = transforms.Compose(
                     [
-                        transforms.Resize(size),
+                        transforms.Resize(self.size),
                         transforms.ToTensor(),
                         transforms.Normalize(
                             [0.485, 0.456, 0.406],
@@ -52,7 +54,7 @@ class InferenceNodeBase(object):
             self.model = None
             self.transforms = transforms.Compose(
                 [
-                    transforms.Resize(size),
+                    transforms.Resize(self.size),
                     transforms.ToTensor(),
                     transforms.Normalize(
                         [0.485, 0.456, 0.406],
